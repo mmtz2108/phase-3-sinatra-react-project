@@ -3,47 +3,80 @@ class ApplicationController < Sinatra::Base
   
   # Add your routes here
   get "/monster-types" do
-    MonsterType.all.to_json
+    MonsterType.list_monster_types.to_json
   end
 
   get "/monster-types/:id" do
-    MonsterType.find(params[:id]).to_json
+    MonsterType.get_monster_type(params[:id]).to_json
   end
 
-  post "/monsters-types" do
+  post "/monster-types" do
     request.body.rewind
     body = JSON.parse(request.body.read)
-    type = MonsterType.create(name: body["name"], description: body["description"])
-    type.to_json
+    MonsterType.create_monster_type(body["name"], body["description"]).to_json
+  end
+
+  delete "/monster-types/:id" do
+    MonsterType.delete_monster_type(params[:id])
+    204
+  end
+
+  put "/monster-types/:id" do
+    request.body.rewind
+    body = JSON.parse(request.body.read)
+    MonsterType.update_monster_type(body["name"], body["description"], params[:id]).to_json
+  end
+
+  patch "/monster-types/:id" do
+    request.body.rewind
+    body = JSON.parse(request.body.read)
+    MonsterType.patch_monster_type(body["name"], body["description"], params[:id]).to_json
   end
 
   get "/monsters" do
     monster_type = params[:monster_type]
-    #name = params[:name]
-    if monster_type != nil
-    Monster.where(monster_type_id: monster_type).to_json 
+    name = params[:name]
+    if name != nil
+    Monster.search_monsters(name, monster_type).to_json 
     else 
-      Monster.all.to_json
+      Monster.list_monsters.to_json
     end
   end
 
   post "/monsters" do
     request.body.rewind
     body = JSON.parse(request.body.read)
-    monster = Monster.create(name: body["name"], description: body["description"], monster_type_id: body["monsterType"])
-    monster.to_json
+    Monster.create_monster(body["name"], body["description"], body["monsterType"]).to_json
+    
   end
   
   get "/monsters/:id" do
-    Monster.find(params[:id]).to_json(include: [:monster_type, :abilities] )
+    Monster.get_monster(params[:id]).to_json(include: [:monster_type, :abilities] )
+  end
+
+  delete "/monsters/:id" do
+    Monster.delete_monster(params[:id])
+    204
+  end
+
+  put "/monsters/:id" do
+    request.body.rewind
+    body = JSON.parse(request.body.read)
+    Monster.update_monster(body["name"], body["description"], params[:id], body["monsterType"]).to_json
+  end
+
+  patch "/monsters/:id" do
+    request.body.rewind
+    body = JSON.parse(request.body.read)
+    Monster.patch_monster(body["name"], body["description"], params[:id], body["monsterType"]).to_json
   end
 
   get "/abilities" do
-    Ability.all.to_json
+    Ability.list_abilities.to_json
   end
 
   get "/abilities/:id" do
-    Ability.find(params[:id]).to_json
+    Ability.get_ability(params[:id]).to_json
   end
 
 end
