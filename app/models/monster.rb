@@ -3,7 +3,11 @@ class Monster < ActiveRecord::Base
     has_many :abilities
 
     def self.list_monsters
-        self.all
+        self.all.map{|monster| {
+            id: monster.id,
+            name: monster.name,
+            description: monster.description,
+        monster_type: monster.monster_type}}
     end
 
     def self.search_monsters(name, type)
